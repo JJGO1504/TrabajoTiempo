@@ -1,4 +1,3 @@
-
 public class Fecha {
 
     private int dia;
@@ -7,7 +6,6 @@ public class Fecha {
     private Tiempo tiempo;
 
     public Fecha(int d, int m, int a, Tiempo t) {
-
         this.dia = d;
         this.mes = m;
         this.anio = a;
@@ -35,7 +33,6 @@ public class Fecha {
     }
 
 
-
     public void setDia(int dia) {
         this.dia = dia;
         validarDia();
@@ -57,56 +54,103 @@ public class Fecha {
 
 
 
+    public int[] calcularDiferencia(Fecha otraFecha) {
 
-    public static Fecha nuevaFecha(int d, int m, int a, Tiempo t) {
-        return new Fecha(d, m, a, t);
-    }
+        int anios = 0;
+        int meses = 0;
+        int dias = 0;
+        int horas = 0;
+        int minutos = 0;
+        int segundos = 0;
 
-    public int diferenciaAnios(Fecha otraFecha) {
-        return otraFecha.anio - this.anio;
-    }
-
-
-    public int diferenciaMeses(Fecha otraFecha) {
-        int mesesDiferencia = (otraFecha.anio - this.anio) * 12 + (otraFecha.mes - this.mes);
-        return mesesDiferencia;
-    }
-
-
-    public int diferenciaDias(Fecha otraFecha) {
-
-        int diasFecha1 = this.anio * 365 + obtenerDiasHastaFinDeAnio(this.mes, this.dia);
-        int diasFecha2 = otraFecha.anio * 365 + obtenerDiasHastaFinDeAnio(otraFecha.mes, otraFecha.dia);
-
-        return diasFecha2 - diasFecha1;
-    }
+        int seg1 = this.tiempo.getSegundo();
+        int seg2 = otraFecha.tiempo.getSegundo();
+        int min1 = this.tiempo.getMinuto();
+        int min2 = otraFecha.tiempo.getMinuto();
+        int hora1 = this.tiempo.getHora24();
+        int hora2 = otraFecha.tiempo.getHora24();
+        int dia1 = this.dia;
+        int dia2 = otraFecha.dia;
+        int mes1 = this.mes;
+        int mes2 = otraFecha.mes;
+        int anio1 = this.anio;
+        int anio2 = otraFecha.anio;
 
 
-    public int diferenciaHoras(Fecha otraFecha) {
-        // Primero calcular días de diferencia
-        int diasDiferencia = diferenciaDias(otraFecha);
 
-
-        int horasFecha1 = this.tiempo.getHora24();
-        int horasFecha2 = otraFecha.tiempo.getHora24();
-
-
-        int horasDiferencia = (diasDiferencia * 24) + (horasFecha2 - horasFecha1);
-
-        return horasDiferencia;
-    }
-
-
-    public String getNombreMes() {
-        String[] nombresMeses = {
-                "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-        };
-
-        if (mes >= 1 && mes <= 12) {
-            return nombresMeses[mes - 1];
+        if (seg2 >= seg1) {
+            segundos = seg2 - seg1;
+        } else {
+            segundos = 60 - seg1 + seg2;
+            min2--;
         }
-        return "Mes inválido";
+
+
+
+        if (min2 >= min1) {
+            minutos = min2 - min1;
+        } else {
+            minutos = 60 - min1 + min2;
+            hora2--;
+        }
+
+
+
+        if (hora2 >= hora1) {
+            horas = hora2 - hora1;
+        } else {
+            horas = 24 - hora1 + hora2;
+            dia2--;
+        }
+
+
+
+        anios = anio2 - anio1;
+
+
+        if (mes2 < mes1) {
+            anios--;
+        } else if (mes2 == mes1 && dia2 < dia1) {
+            anios--;
+        }
+
+
+
+        if (mes2 >= mes1) {
+            meses = mes2 - mes1;
+        } else {
+            meses = 12 - mes1 + mes2;
+        }
+
+
+        if (dia2 < dia1) {
+            meses--;
+            if (meses < 0) {
+                meses = 11;
+            }
+        }
+
+
+        if (dia2 >= dia1) {
+            dias = dia2 - dia1;
+        } else {
+
+            int mesAnterior = mes2 - 1;
+            if (mesAnterior == 0) {
+                mesAnterior = 12;
+            }
+            int diasDelMesAnterior = obtenerDiasDelMes(mesAnterior);
+            dias = diasDelMesAnterior - dia1 + dia2;
+        }
+
+
+        return new int[]{anios, meses, dias, horas, minutos, segundos};
+    }
+
+
+    public void imprimirDiferencia(Fecha otraFecha) {
+        int[] dif = calcularDiferencia(otraFecha);
+        System.out.println("La diferencia es de " + dif[0] + " años " + dif[1] + " meses " + dif[2] + " días " + dif[3] + " horas " + dif[4] + " minutos " + dif[5] + " segundos");
     }
 
 
@@ -116,13 +160,11 @@ public class Fecha {
     }
 
 
-
     private void validarMes() {
         if (this.mes < 1 || this.mes > 12) {
             System.out.println("ERROR: Mes debe estar entre 1 y 12.");
         }
     }
-
 
     private void validarDia() {
         int diasDelMes = obtenerDiasDelMes(this.mes);
@@ -132,44 +174,22 @@ public class Fecha {
         }
     }
 
-
     private int obtenerDiasDelMes(int mes) {
-        switch (mes) {
-            case 1:
-            case 3:
-            case 5:
-            case 7:
-            case 8:
-            case 10:
-            case 12:
-                return 31;
 
-            case 4:
-            case 6:
-            case 9:
-            case 11:
-                return 30;
-
-            case 2:
-                return 28;
-
-            default:
-                return 31;
-        }
-    }
-
-
-    private int obtenerDiasHastaFinDeAnio(int mes, int dia) {
-        int diasTotales = 0;
-
-
-        for (int m = 1; m < mes; m++) {
-            diasTotales += obtenerDiasDelMes(m);
+        if (mes == 1 || mes == 3 || mes == 5 || mes == 7 || mes == 8 || mes == 10 || mes == 12) {
+            return 31;
         }
 
+        else if (mes == 4 || mes == 6 || mes == 9 || mes == 11) {
+            return 30;
+        }
 
-        diasTotales += dia;
+        else if (mes == 2) {
+            return 28;
+        }
 
-        return diasTotales;
+        else {
+            return 31;
+        }
     }
 }
